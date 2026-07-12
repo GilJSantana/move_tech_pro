@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoveTech E-Commerce</title>
+    <link rel="stylesheet" href="{% static 'ecommerce/styles.css' %}" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <h1>MoveTech E-Commerce</h1>
+        {% with status=health.status|default:'indisponivel'|lower %}
+          <span class="badge {% if status == 'ok' or status == 'healthy' or status == 'up' %}badge--healthy{% else %}badge--down{% endif %}">
+            API: {{ health.status|default:"indisponivel" }}
+          </span>
+        {% endwith %}
+      </header>
+
+      {% if messages %}
+        <section class="message-stack" aria-label="mensagens da operacao">
+          {% for message in messages %}
+            <div class="message {{ message.tags }}">
+              {% if message.tags == "success" %}[OK]{% else %}[ERRO]{% endif %} {{ message }}
+            </div>
+          {% endfor %}
+        </section>
+      {% endif %}
+
+      <section class="layout">
+        <article class="card">
+          <h2>Novo pedido</h2>
+          <form method="post" class="stack">
+            {% csrf_token %}
+            <div class="field">
+              <label for="produto">Produto</label>
+              <input id="produto" name="produto" type="text" placeholder="Ex: Notebook Gamer" required />
+            </div>
+
+            <div class="field">
+              <label for="quantidade">Quantidade</label>
+              <input id="quantidade" name="quantidade" type="number" min="1" value="1" required />
+            </div>
+
+            <button class="button-pill" type="submit">Efetuar compra</button>
+          </form>
+          <p class="meta">Endpoint de backend: <code>{{ backend_api_url }}</code></p>
+        </article>
+
+        <article class="card stack">
+          <h2>Telemetria</h2>
+          <p class="meta">Resposta de saude</p>
+          <pre class="code-text">{{ health }}</pre>
+
+          <h2>Pedidos</h2>
+          {% if orders %}
+            <ul class="orders">
+              {% for order in orders %}
+                <li>{{ order }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="meta">Nenhum pedido encontrado.</p>
+          {% endif %}
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
